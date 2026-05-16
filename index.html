@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gamer Shop</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Noto+Sans+Thai:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    :root {
+      --red: #e02020;
+      --red-dark: #8c0f0f;
+      --red-glow: rgba(224,32,32,0.35);
+      --bg: #0a0a0f;
+      --bg2: #111118;
+      --bg3: #17171f;
+      --border: rgba(255,255,255,0.07);
+      --text: #e8e8f0;
+      --muted: #7a7a9a;
+      --gold: #f5c842;
+    }
+
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Noto Sans Thai', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ===== NAVBAR ===== */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10,10,15,0.85);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+      height: 64px;
+    }
+    .nav-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      height: 100%;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--red);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: white;
+      box-shadow: 0 0 16px var(--red-glow);
+    }
+    .logo-text {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 22px;
+      letter-spacing: 1px;
+      color: var(--text);
+    }
+    .logo-text span { color: var(--red); }
+
+    .nav-right { display: flex; align-items: center; gap: 16px; }
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 14px;
+      gap: 8px;
+      transition: border-color .2s;
+    }
+    .search-bar:focus-within { border-color: var(--red); box-shadow: 0 0 0 3px var(--red-glow); }
+    .search-bar input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-size: 14px;
+      width: 200px;
+      font-family: inherit;
+    }
+    .search-bar input::placeholder { color: var(--muted); }
+    .search-bar i { color: var(--muted); font-size: 14px; }
+
+    .cart-btn {
+      position: relative;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+      color: var(--text);
+      font-size: 17px;
+    }
+    .cart-btn:hover { border-color: var(--red); background: rgba(224,32,32,0.1); }
+    .cart-badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--red);
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 8px var(--red-glow);
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      background: linear-gradient(135deg, #0d0d15 0%, #1a0a0a 50%, #0a0a0f 100%);
+      padding: 56px 24px 40px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 500px;
+      height: 200px;
+      background: radial-gradient(ellipse, rgba(224,32,32,0.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero h1 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: clamp(36px, 6vw, 72px);
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .hero h1 .accent { color: var(--red); text-shadow: 0 0 30px var(--red-glow); }
+    .hero p { color: var(--muted); margin-top: 12px; font-size: 15px; }
+
+    /* ===== LAYOUT ===== */
+    .layout {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 32px 24px;
+      display: flex;
+      gap: 28px;
+    }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      width: 220px;
+      flex-shrink: 0;
+    }
+    .sidebar-section { margin-bottom: 24px; }
+    .sidebar-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+      padding: 0 4px;
+    }
+    .cat-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 14px;
+      font-family: inherit;
+      transition: all .2s;
+      margin-bottom: 4px;
+      text-align: left;
+    }
+    .cat-btn i { width: 18px; text-align: center; }
+    .cat-btn:hover { background: var(--bg3); color: var(--text); border-color: var(--border); }
+    .cat-btn.active { background: rgba(224,32,32,0.12); color: var(--red); border-color: rgba(224,32,32,0.3); }
+    .cat-count {
+      margin-left: auto;
+      font-size: 11px;
+      background: var(--bg3);
+      border-radius: 20px;
+      padding: 1px 7px;
+      color: var(--muted);
+    }
+    .cat-btn.active .cat-count { background: rgba(224,32,32,0.2); color: var(--red); }
+
+    /* ===== PRODUCT GRID ===== */
+    .product-area { flex: 1; min-width: 0; }
+    .area-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .area-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 20px;
+      letter-spacing: 1px;
+    }
+    .area-count { color: var(--muted); font-size: 14px; }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .product-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform .2s, border-color .2s, box-shadow .2s;
+      position: relative;
+    }
+    .product-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(224,32,32,0.4);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(224,32,32,0.15);
+    }
+    .product-card:hover .card-overlay { opacity: 1; }
+
+    .card-img-wrap { position: relative; overflow: hidden; }
+    .card-img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      display: block;
+      transition: transform .3s;
+    }
+    .product-card:hover .card-img { transform: scale(1.05); }
+    .card-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(224,32,32,0.7) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity .2s;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 14px;
+    }
+    .card-overlay-text {
+      color: white;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .card-type-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      color: var(--gold);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 4px;
+      border: 1px solid rgba(245,200,66,0.3);
+    }
+
+    .card-body { padding: 12px 14px 14px; }
+    .card-name {
+      font-weight: 600;
+      font-size: 14px;
+      line-height: 1.35;
+      margin-bottom: 6px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .card-price {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--red);
+    }
+    .card-price span { font-size: 12px; color: var(--muted); font-family: inherit; font-weight: 400; }
+
+    .no-results {
+      text-align: center;
+      padding: 80px 0;
+      color: var(--muted);
+    }
+    .no-results i { font-size: 48px; margin-bottom: 16px; display: block; opacity: .4; }
+
+    /* ===== MODAL ===== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(6px);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; animation: fadeIn .15s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .modal-box {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      width: 100%;
+      max-width: 720px;
+      animation: slideUp .2s ease;
+      position: relative;
+    }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    .modal-close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      transition: all .15s;
+      z-index: 1;
+    }
+    .modal-close:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+
+    /* Detail modal */
+    .detail-layout {
+      display: flex;
+      gap: 0;
+    }
+    .detail-img-wrap {
+      width: 280px;
+      flex-shrink: 0;
+    }
+    .detail-img {
+      width: 100%;
+      height: 320px;
+      object-fit: cover;
+      display: block;
+    }
+    .detail-info {
+      padding: 28px 28px 24px;
+      display: flex;
+      flex-direction: column;
+    }
+    .detail-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gold);
+      background: rgba(245,200,66,0.1);
+      border: 1px solid rgba(245,200,66,0.25);
+      border-radius: 4px;
+      padding: 3px 8px;
+      margin-bottom: 12px;
+    }
+    .detail-name {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+    .detail-price {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 30px;
+      font-weight: 700;
+      color: var(--red);
+      margin-bottom: 16px;
+    }
+    .detail-price small {
+      font-family: inherit;
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 400;
+    }
+    .detail-divider { height: 1px; background: var(--border); margin-bottom: 16px; }
+    .detail-desc {
+      color: var(--muted);
+      font-size: 13.5px;
+      line-height: 1.7;
+      flex: 1;
+    }
+    .detail-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 24px;
+    }
+    .btn-outline {
+      flex: 1;
+      padding: 11px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .15s;
+      font-family: inherit;
+    }
+    .btn-outline:hover { background: var(--bg3); border-color: rgba(255,255,255,0.2); }
+    .btn-primary {
+      flex: 2;
+      padding: 11px;
+      border-radius: 8px;
+      border: none;
+      background: var(--red);
+      color: white;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .15s;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 16px var(--red-glow);
+    }
+    .btn-primary:hover { background: #c81a1a; transform: translateY(-1px); }
+
+    /* Cart modal */
+    .cart-modal-box {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 560px;
+      animation: slideUp .2s ease;
+      position: relative;
+    }
+    .cart-header {
+      padding: 22px 24px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .cart-header h2 {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 20px;
+      letter-spacing: 1px;
+    }
+    .cart-body { padding: 20px 24px; max-height: 400px; overflow-y: auto; }
+    .cart-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .cart-item:last-child { border-bottom: none; }
+    .cart-item img {
+      width: 56px;
+      height: 56px;
+      object-fit: cover;
+      border-radius: 8px;
+      flex-shrink: 0;
+    }
+    .cart-item-info { flex: 1; min-width: 0; }
+    .cart-item-name {
+      font-weight: 600;
+      font-size: 14px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .cart-item-price { color: var(--red); font-size: 13px; margin-top: 2px; font-weight: 600; }
+    .qty-control {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .qty-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      transition: all .15s;
+    }
+    .qty-btn:hover { border-color: var(--red); color: var(--red); }
+    .qty-num { font-weight: 700; width: 24px; text-align: center; }
+    .cart-empty {
+      text-align: center;
+      padding: 40px 0;
+      color: var(--muted);
+    }
+    .cart-empty i { font-size: 40px; margin-bottom: 12px; display: block; opacity: .4; }
+
+    .cart-footer {
+      padding: 18px 24px;
+      border-top: 1px solid var(--border);
+    }
+    .cart-total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .cart-total-label { color: var(--muted); font-size: 14px; }
+    .cart-total-amount {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--red);
+    }
+    .cart-footer-btns { display: flex; gap: 10px; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 3px; }
+
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .detail-layout { flex-direction: column; }
+      .detail-img-wrap { width: 100%; }
+      .detail-img { height: 240px; }
+      .search-bar { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="logo">
+      <div class="logo-icon"><i class="fas fa-gamepad"></i></div>
+      <span class="logo-text">GAMER<span>SHOP</span></span>
+    </a>
+    <div class="nav-right">
+      <div class="search-bar">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="ค้นหาสินค้า..." oninput="handleSearch(this.value)">
+      </div>
+      <div class="cart-btn" onclick="openCart()" title="ตะกร้าสินค้า">
+        <i class="fas fa-shopping-cart"></i>
+        <div class="cart-badge" id="cartBadge">0</div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <h1>YOUR <span class="accent">GAMING</span> UNIVERSE</h1>
+  <p>เกม • อาร์ตบุ๊ค • DLC ครบครัน ราคาเป็นกันเอง</p>
+</div>
+
+<!-- MAIN LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">หมวดหมู่</div>
+      <button class="cat-btn active" onclick="filterCategory('all', this)">
+        <i class="fas fa-border-all"></i> ทั้งหมด <span class="cat-count" id="cnt-all">13</span>
+      </button>
+      <button class="cat-btn" onclick="filterCategory('game', this)">
+        <i class="fas fa-gamepad"></i> เกม <span class="cat-count" id="cnt-game">5</span>
+      </button>
+      <button class="cat-btn" onclick="filterCategory('Artbook', this)">
+        <i class="fas fa-book-open"></i> อาร์ตบุ๊ค <span class="cat-count" id="cnt-Artbook">4</span>
+      </button>
+      <button class="cat-btn" onclick="filterCategory('DLC', this)">
+        <i class="fas fa-puzzle-piece"></i> DLC <span class="cat-count" id="cnt-DLC">4</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- PRODUCTS -->
+  <main class="product-area">
+    <div class="area-header">
+      <span class="area-title" id="areaTitle">สินค้าทั้งหมด</span>
+      <span class="area-count" id="areaCount">13 รายการ</span>
+    </div>
+    <div class="product-grid" id="productGrid"></div>
+    <div class="no-results" id="noResults" style="display:none;">
+      <i class="fas fa-search"></i>
+      <p>ไม่พบสินค้าที่คุณค้นหา</p>
+    </div>
+  </main>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="detailOverlay" onclick="closeModal(event, 'detailOverlay')">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="document.getElementById('detailOverlay').classList.remove('open')">
+      <i class="fas fa-times"></i>
+    </button>
+    <div class="detail-layout">
+      <div class="detail-img-wrap">
+        <img class="detail-img" id="detailImg" src="" alt="">
+      </div>
+      <div class="detail-info">
+        <span class="detail-badge" id="detailType"></span>
+        <div class="detail-name" id="detailName"></div>
+        <div class="detail-price"><span id="detailPrice"></span> <small>THB</small></div>
+        <div class="detail-divider"></div>
+        <p class="detail-desc" id="detailDesc"></p>
+        <div class="detail-actions">
+          <button class="btn-outline" onclick="document.getElementById('detailOverlay').classList.remove('open')">ปิด</button>
+          <button class="btn-primary" onclick="addToCart()">
+            <i class="fas fa-cart-plus"></i> เพิ่มลงตะกร้า
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CART MODAL -->
+<div class="modal-overlay" id="cartOverlay" onclick="closeModal(event, 'cartOverlay')">
+  <div class="cart-modal-box" onclick="event.stopPropagation()">
+    <div class="cart-header">
+      <h2><i class="fas fa-shopping-cart" style="color:var(--red);margin-right:8px;"></i>ตะกร้าของฉัน</h2>
+      <button class="modal-close" style="position:static;" onclick="document.getElementById('cartOverlay').classList.remove('open')">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="cart-body" id="cartBody"></div>
+    <div class="cart-footer" id="cartFooter"></div>
+  </div>
+</div>
+
+<script>
+const products = [
+  { id:1, img:'https://upload.wikimedia.org/wikipedia/commons/f/fb/Minecraft-creeper-face.jpg', name:'Minecraft', price:260, type:'game', description:'Minecraft เป็นเกมแห่งการสร้างสรรค์ที่ให้คุณสร้างและสำรวจโลกไร้ขอบเขต! สนุกกับโหมด Survival ที่ต้องเอาชีวิตรอดจากมอนสเตอร์ และ Creative ที่คุณสามารถสร้างได้อย่างอิสระ' },
+  { id:2, img:'https://i0.wp.com/www.pipeworks.com/wp-content/uploads/2022/09/Terraria.jpg?fit=800%2C800&ssl=1', name:'Terraria', price:150, type:'game', description:'Terraria เกมผจญภัยและสำรวจที่เปิดโลกกว้างให้คุณค้นหาและสร้างอาณาจักรของตัวเอง ผสมผสานการต่อสู้กับบอสสุดท้าทาย สำรวจถ้ำลึกลับ รวบรวมทรัพยากร' },
+  { id:3, img:'https://s.pacn.ws/1/p/pf/starbound-457843.10.jpg?v=rlqid2', name:'Starbound', price:170, type:'game', description:'Starbound เป็นเกมผจญภัยในอวกาศที่ให้คุณออกสำรวจดาวเคราะห์หลากหลาย พร้อมสร้างฐาน ท่องสำรวจ รวบรวมทรัพยากร และต่อสู้กับสิ่งมีชีวิตต่างดาว' },
+  { id:4, img:'https://image.api.playstation.com/cdn/UP1004/CUSA03041_00/Hpl5MtwQgOVF9vJqlfui6SDB5Jl4oBSq.png', name:'Red Dead Redemption 2', price:1300, type:'game', description:'Red Dead Redemption 2 เป็นเกมแอ็กชันผจญภัยในยุคคาวบอย ผู้เล่นรับบท Arthur Morgan แก๊งนอกกฎหมาย ที่ต้องดิ้นรนเอาตัวรอดและเผชิญความขัดแย้งในโลกเปิดอันสมจริง' },
+  { id:5, img:'https://upload.wikimedia.org/wikipedia/th/c/cc/Grand_Theft_Auto_V_Cover.png', name:'Grand Theft Auto V', price:1200, type:'game', description:'GTA V เป็นเกมแนวแอคชั่นผจญภัยแบบโอเพ่นเวิลด์ พัฒนาโดย Rockstar Games ผู้เล่นรับบทสามตัวละครหลัก ไมเคิล เทรเวอร์ และแฟรงคลิน ในเมืองลอสซานโตส' },
+  { id:6, img:'https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcTuElM9ybFsWjM0EG0PRPN81jjZ20DOrPzeWOedkh6CIDiWzqan', name:'ELDEN RING Art Book Vol.I', price:900, type:'Artbook', description:'ELDEN RING OFFICIAL ART BOOK Volume I รวมภาพศิลปะและแนวคิดจากเกม Elden Ring ประกอบด้วยการออกแบบตัวละคร ศัตรู บอส อาวุธ และฉากต่าง ๆ ที่ละเอียดและน่าตื่นตา' },
+  { id:7, img:'https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcTNHL2ZZZchWjdq431GKAU08VCvhrr11-KbIICkxqLCRUeL-lIT', name:'The Art of Cuphead', price:900, type:'Artbook', description:'The Art of Cuphead คือหนังสือรวมภาพศิลปะและเบื้องหลังการสร้างเกม Cuphead ที่นำเสนอกราฟิกสไตล์การ์ตูนยุค 1930 รวมถึงการออกแบบตัวละครและบอส' },
+  { id:8, img:'https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcTlGMttfwkXFHBxJAnmGSVOf_nJQdS21zMbk-iC0xDMiHn9zRPk', name:'The Art of Final Fantasy XVI', price:900, type:'Artbook', description:'The Art of Final Fantasy XVI เป็นหนังสือที่รวบรวมงานศิลปะและแนวคิดการออกแบบจากเกม FFXVI ประกอบด้วยภาพของตัวละคร ฉาก สิ่งมีชีวิต รวมถึงบรรดา Eikons' },
+  { id:9, img:'https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcSAb7rFg5jPTxkzz42Jd1Zobhr73Q8xZxNSwbHsreVYZ1-N-VOw', name:'The Art of DOOM: Eternal', price:900, type:'Artbook', description:'The Art of DOOM: Eternal รวบรวมงานศิลปะและแนวคิดการออกแบบจากเกม DOOM: Eternal นำเสนอภาพกราฟิกของตัวละคร ศัตรู อาวุธ และฉากต่าง ๆ ที่น่าตื่นเต้น' },
+  { id:10, img:'https://image.api.playstation.com/vulcan/img/cfn/11307RW7B5mvRMeOG-1pM9RnGdpRQVQ2iXinFe9755wHVXH0-mRqwizRWZQK8wMHat3XhtITgBGvRuT7JLJkkZenNxUerkoj.png', name:'Monster Hunter World: Iceborne', price:490, type:'DLC', description:'Monster Hunter World: Iceborne เป็นส่วนขยายของเกม MHW ที่เพิ่มมอนสเตอร์ใหม่ สถานที่ใหม่ และระบบการเล่นใหม่ โดยมีฉากหลังเป็นภูมิภาคน้ำแข็งและหิมะ' },
+  { id:11, img:'https://howlongtobeat.com/games/139385_Elden_Ring_Shadow_of_the_Erdtree.jpg', name:'ELDEN RING: Shadow of the Erdtree', price:490, type:'DLC', description:'Elden Ring DLC: Shadow of the Erdtree ส่วนเสริมสำหรับเกม Elden Ring ที่จะเพิ่มเนื้อหาใหม่ ตัวละครใหม่ มอนสเตอร์ และพื้นที่สำรวจใหม่' },
+  { id:12, img:'https://upload.wikimedia.org/wikipedia/en/e/ed/The_Last_of_Us_Left_Behind_cover.jpg', name:'The Last Of Us: Left Behind', price:490, type:'DLC', description:'Left Behind คือ DLC ของเกม The Last of Us ที่เน้นเรื่องราวของ Ellie ก่อนเหตุการณ์ในเกมหลัก เล่าเรื่องราวเกี่ยวกับมิตรภาพของเธอกับ Riley เพื่อนสนิท' },
+  { id:13, img:'https://m.media-amazon.com/images/M/MV5BMGM2ZWVlY2EtZTViNy00OTRlLThkZjAtMTVjNzQ3YTRkYjU4XkEyXkFqcGc@._V1_.jpg', name:'BioShock Infinite: Burial at Sea', price:490, type:'DLC', description:'BioShock Infinite: Burial at Sea คือส่วนเสริมที่เนื้อเรื่องเกิดขึ้นในเมือง Rapture สำรวจชีวิตของ Booker DeWitt และ Elizabeth ขณะค้นพบความลับของเมืองใต้น้ำ' },
+];
+
+const typeLabel = { game: 'GAME', Artbook: 'ART BOOK', DLC: 'DLC' };
+let currentCategory = 'all';
+let searchQuery = '';
+let selectedIndex = null;
+let cart = [];
+
+function fmt(n) { return n.toLocaleString(); }
+
+function filteredProducts() {
+  return products.filter(p => {
+    const matchCat = currentCategory === 'all' || p.type === currentCategory;
+    const matchQ = p.name.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchCat && matchQ;
+  });
+}
+
+function render() {
+  const list = filteredProducts();
+  const grid = document.getElementById('productGrid');
+  const noRes = document.getElementById('noResults');
+  document.getElementById('areaCount').textContent = list.length + ' รายการ';
+
+  if (!list.length) { grid.innerHTML = ''; noRes.style.display = 'block'; return; }
+  noRes.style.display = 'none';
+
+  grid.innerHTML = list.map((p, i) => {
+    const idx = products.indexOf(p);
+    return `<div class="product-card" onclick="openDetail(${idx})">
+      <div class="card-img-wrap">
+        <img class="card-img" src="${p.img}" alt="${p.name}" loading="lazy" onerror="this.src='https://placehold.co/400x300/111/444?text=No+Image'">
+        <div class="card-overlay"><span class="card-overlay-text">ดูรายละเอียด</span></div>
+        <span class="card-type-badge">${typeLabel[p.type]||p.type}</span>
+      </div>
+      <div class="card-body">
+        <div class="card-name">${p.name}</div>
+        <div class="card-price">${fmt(p.price)} <span>THB</span></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterCategory(cat, btn) {
+  currentCategory = cat;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const titles = { all: 'สินค้าทั้งหมด', game: 'เกม', Artbook: 'อาร์ตบุ๊ค', DLC: 'DLC' };
+  document.getElementById('areaTitle').textContent = titles[cat] || cat;
+  render();
+}
+
+function handleSearch(val) {
+  searchQuery = val;
+  render();
+}
+
+function openDetail(idx) {
+  selectedIndex = idx;
+  const p = products[idx];
+  document.getElementById('detailImg').src = p.img;
+  document.getElementById('detailType').textContent = typeLabel[p.type] || p.type;
+  document.getElementById('detailName').textContent = p.name;
+  document.getElementById('detailPrice').textContent = fmt(p.price);
+  document.getElementById('detailDesc').textContent = p.description;
+  document.getElementById('detailOverlay').classList.add('open');
+}
+
+function addToCart() {
+  const p = products[selectedIndex];
+  const existing = cart.find(c => c.id === p.id);
+  if (existing) existing.count++;
+  else cart.push({ ...p, count: 1 });
+  updateBadge();
+  document.getElementById('detailOverlay').classList.remove('open');
+  Swal.fire({
+    title: 'เพิ่มลงตะกร้าแล้ว!',
+    text: p.name,
+    icon: 'success',
+    timer: 1500,
+    showConfirmButton: false,
+    background: '#17171f',
+    color: '#e8e8f0',
+  });
+}
+
+function updateBadge() {
+  const total = cart.reduce((s, c) => s + c.count, 0);
+  const badge = document.getElementById('cartBadge');
+  badge.textContent = total;
+  badge.style.display = total > 0 ? 'flex' : 'none';
+}
+
+function openCart() {
+  renderCart();
+  document.getElementById('cartOverlay').classList.add('open');
+}
+
+function renderCart() {
+  const body = document.getElementById('cartBody');
+  const footer = document.getElementById('cartFooter');
+
+  if (!cart.length) {
+    body.innerHTML = `<div class="cart-empty"><i class="fas fa-shopping-cart"></i><p>ยังไม่มีสินค้าในตะกร้า</p></div>`;
+    footer.innerHTML = `<div class="cart-footer-btns"><button class="btn-outline" style="flex:1" onclick="document.getElementById('cartOverlay').classList.remove('open')">ปิด</button></div>`;
+    return;
+  }
+
+  body.innerHTML = cart.map((item, i) => `
+    <div class="cart-item">
+      <img src="${item.img}" alt="${item.name}" onerror="this.src='https://placehold.co/56x56/111/444?text=?'">
+      <div class="cart-item-info">
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-price">${fmt(item.price * item.count)} THB</div>
+      </div>
+      <div class="qty-control">
+        <button class="qty-btn" onclick="changeQty(${i}, -1)"><i class="fas fa-minus" style="font-size:10px;"></i></button>
+        <span class="qty-num">${item.count}</span>
+        <button class="qty-btn" onclick="changeQty(${i}, 1)"><i class="fas fa-plus" style="font-size:10px;"></i></button>
+      </div>
+    </div>
+  `).join('');
+
+  const total = cart.reduce((s, c) => s + c.price * c.count, 0);
+  footer.innerHTML = `
+    <div class="cart-total-row">
+      <span class="cart-total-label">ยอดรวมทั้งหมด</span>
+      <span class="cart-total-amount">${fmt(total)} THB</span>
+    </div>
+    <div class="cart-footer-btns">
+      <button class="btn-outline" onclick="document.getElementById('cartOverlay').classList.remove('open')">ปิด</button>
+      <button class="btn-primary" onclick="checkout()" style="flex:2;">
+        <i class="fas fa-credit-card"></i> ชำระเงิน
+      </button>
+    </div>`;
+}
+
+function changeQty(i, delta) {
+  cart[i].count += delta;
+  if (cart[i].count <= 0) cart.splice(i, 1);
+  updateBadge();
+  renderCart();
+}
+
+function checkout() {
+  const total = cart.reduce((s, c) => s + c.price * c.count, 0);
+  Swal.fire({
+    title: 'ยืนยันการชำระเงิน',
+    html: `<p style="color:#7a7a9a;">ยอดที่ต้องชำระ</p><p style="font-size:28px;font-weight:700;color:#e02020;margin-top:6px;">${fmt(total)} THB</p>`,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'ยืนยัน',
+    cancelButtonText: 'ยกเลิก',
+    confirmButtonColor: '#e02020',
+    background: '#17171f',
+    color: '#e8e8f0',
+  }).then(r => {
+    if (r.isConfirmed) {
+      cart = [];
+      updateBadge();
+      document.getElementById('cartOverlay').classList.remove('open');
+      Swal.fire({ title: 'ชำระเงินสำเร็จ!', text: 'ขอบคุณที่ใช้บริการ ♥', icon: 'success', background: '#17171f', color: '#e8e8f0', confirmButtonColor: '#e02020' });
+    }
+  });
+}
+
+function closeModal(e, id) {
+  if (e.target.id === id) document.getElementById(id).classList.remove('open');
+}
+
+// Init
+render();
+</script>
+</body>
+</html>

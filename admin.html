@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GamerShop Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Noto+Sans+Thai:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<style>
+:root{
+  --red:#e02020;--red-dark:#8c0f0f;--red-glow:rgba(224,32,32,.3);
+  --bg:#0a0a0f;--bg2:#111118;--bg3:#17171f;--bg4:#1e1e28;
+  --border:rgba(255,255,255,.07);--text:#e8e8f0;--muted:#7a7a9a;
+  --gold:#f5c842;--green:#22c55e;--blue:#3b82f6;--orange:#f97316;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans Thai',sans-serif;min-height:100vh;}
+
+/* ===== LOGIN ===== */
+#loginScreen{
+  position:fixed;inset:0;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;z-index:999;
+}
+.login-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:20px;
+  padding:48px 40px;width:100%;max-width:400px;
+  box-shadow:0 24px 64px rgba(0,0,0,.5);
+}
+.login-logo{text-align:center;margin-bottom:32px;}
+.login-logo .icon{
+  width:60px;height:60px;background:var(--red);border-radius:14px;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:26px;color:#fff;box-shadow:0 0 24px var(--red-glow);margin-bottom:12px;
+}
+.login-logo h1{font-family:'Rajdhani',sans-serif;font-size:22px;letter-spacing:1px;}
+.login-logo p{color:var(--muted);font-size:13px;margin-top:4px;}
+.form-group{margin-bottom:18px;}
+.form-group label{display:block;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.form-input{
+  width:100%;padding:11px 14px;background:var(--bg3);border:1px solid var(--border);
+  border-radius:8px;color:var(--text);font-size:14px;font-family:inherit;outline:none;
+  transition:border-color .2s,box-shadow .2s;
+}
+.form-input:focus{border-color:var(--red);box-shadow:0 0 0 3px var(--red-glow);}
+.btn-login{
+  width:100%;padding:12px;background:var(--red);border:none;border-radius:8px;
+  color:#fff;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;
+  transition:all .2s;margin-top:8px;box-shadow:0 4px 16px var(--red-glow);
+}
+.btn-login:hover{background:#c81a1a;transform:translateY(-1px);}
+.login-hint{text-align:center;color:var(--muted);font-size:12px;margin-top:16px;}
+.login-hint code{color:var(--text);background:var(--bg3);padding:2px 6px;border-radius:4px;}
+
+/* ===== ADMIN LAYOUT ===== */
+#adminApp{display:none;min-height:100vh;}
+.admin-wrap{display:flex;min-height:100vh;}
+
+/* Sidebar */
+.admin-sidebar{
+  width:240px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;
+}
+.sidebar-logo{
+  padding:20px 20px 16px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;
+}
+.sidebar-logo .icon{
+  width:34px;height:34px;background:var(--red);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:15px;
+  box-shadow:0 0 12px var(--red-glow);
+}
+.sidebar-logo span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px;letter-spacing:1px;}
+.sidebar-logo small{color:var(--red);}
+
+.sidebar-nav{padding:16px 12px;flex:1;}
+.nav-section-label{
+  font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  color:var(--muted);padding:0 8px;margin-bottom:8px;margin-top:16px;
+}
+.nav-section-label:first-child{margin-top:0;}
+.nav-item{
+  display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;
+  color:var(--muted);cursor:pointer;font-size:14px;transition:all .15s;margin-bottom:2px;
+  border:1px solid transparent;
+}
+.nav-item i{width:18px;text-align:center;font-size:14px;}
+.nav-item:hover{background:var(--bg3);color:var(--text);}
+.nav-item.active{background:rgba(224,32,32,.12);color:var(--red);border-color:rgba(224,32,32,.25);}
+
+.sidebar-footer{
+  padding:16px;border-top:1px solid var(--border);
+}
+.user-info{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.user-avatar{
+  width:36px;height:36px;border-radius:8px;background:var(--red);
+  display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;
+}
+.user-name{font-size:13px;font-weight:600;}
+.user-role{font-size:11px;color:var(--muted);}
+.btn-logout{
+  width:100%;padding:8px;background:transparent;border:1px solid var(--border);
+  border-radius:8px;color:var(--muted);font-size:13px;font-family:inherit;cursor:pointer;
+  transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.btn-logout:hover{border-color:var(--red);color:var(--red);}
+
+/* Main */
+.admin-main{flex:1;min-width:0;display:flex;flex-direction:column;}
+.admin-topbar{
+  background:rgba(10,10,15,.8);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);padding:0 28px;height:60px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:10;
+}
+.topbar-title{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;letter-spacing:1px;}
+.topbar-right{display:flex;align-items:center;gap:12px;}
+.store-link{
+  padding:7px 14px;background:var(--bg3);border:1px solid var(--border);
+  border-radius:8px;color:var(--muted);font-size:13px;cursor:pointer;
+  text-decoration:none;display:flex;align-items:center;gap:6px;transition:all .15s;
+}
+.store-link:hover{border-color:var(--red);color:var(--red);}
+
+.admin-content{padding:28px;flex:1;}
+
+/* Pages */
+.page{display:none;}
+.page.active{display:block;animation:fadeIn .2s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* Dashboard */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
+.stat-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px;
+}
+.stat-icon{
+  width:40px;height:40px;border-radius:10px;display:flex;align-items:center;
+  justify-content:center;font-size:17px;margin-bottom:14px;
+}
+.stat-value{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;line-height:1;}
+.stat-label{color:var(--muted);font-size:12px;margin-top:4px;}
+.stat-change{font-size:12px;margin-top:8px;}
+.up{color:var(--green);}
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.chart-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px;}
+.chart-title{font-weight:600;font-size:15px;margin-bottom:16px;}
+.bar-chart{display:flex;align-items:flex-end;gap:8px;height:140px;}
+.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;}
+.bar{width:100%;background:var(--red);border-radius:4px 4px 0 0;transition:height .4s ease;min-height:4px;position:relative;}
+.bar:hover{background:#f03030;}
+.bar-label{font-size:10px;color:var(--muted);text-align:center;}
+.bar-val{position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;white-space:nowrap;}
+
+.top-products{display:flex;flex-direction:column;gap:10px;}
+.top-item{display:flex;align-items:center;gap:12px;}
+.top-rank{
+  width:24px;height:24px;border-radius:6px;background:var(--bg3);
+  display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--muted);
+  flex-shrink:0;
+}
+.top-rank.gold{background:rgba(245,200,66,.15);color:var(--gold);}
+.top-name{flex:1;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.top-sales{font-size:12px;color:var(--muted);}
+
+/* Table */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.section-title{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;letter-spacing:1px;}
+.btn-add{
+  padding:9px 18px;background:var(--red);border:none;border-radius:8px;
+  color:#fff;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;
+  transition:all .15s;display:flex;align-items:center;gap:6px;
+  box-shadow:0 2px 10px var(--red-glow);
+}
+.btn-add:hover{background:#c81a1a;}
+.table-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.search-row{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;gap:10px;}
+.tbl-search{
+  padding:8px 12px;background:var(--bg3);border:1px solid var(--border);
+  border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;
+  outline:none;flex:1;transition:border-color .2s;
+}
+.tbl-search:focus{border-color:var(--red);}
+.tbl-filter{
+  padding:8px 12px;background:var(--bg3);border:1px solid var(--border);
+  border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;
+  outline:none;cursor:pointer;
+}
+table{width:100%;border-collapse:collapse;}
+th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);}
+td{padding:13px 16px;font-size:13px;border-bottom:1px solid var(--border);}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,.02);}
+.badge{
+  display:inline-block;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:700;
+}
+.badge-game{background:rgba(59,130,246,.15);color:var(--blue);}
+.badge-dlc{background:rgba(245,200,66,.15);color:var(--gold);}
+.badge-art{background:rgba(249,115,22,.15);color:var(--orange);}
+.badge-pending{background:rgba(245,200,66,.15);color:var(--gold);}
+.badge-done{background:rgba(34,197,94,.15);color:var(--green);}
+.badge-admin{background:rgba(224,32,32,.15);color:var(--red);}
+.badge-user{background:rgba(255,255,255,.07);color:var(--muted);}
+
+.action-btns{display:flex;gap:6px;}
+.btn-icon{
+  width:30px;height:30px;border-radius:6px;border:1px solid var(--border);
+  background:transparent;color:var(--muted);cursor:pointer;font-size:12px;
+  display:flex;align-items:center;justify-content:center;transition:all .15s;
+}
+.btn-icon:hover.edit{border-color:var(--blue);color:var(--blue);}
+.btn-icon:hover.del{border-color:var(--red);color:var(--red);}
+.prod-img-thumb{width:40px;height:40px;object-fit:cover;border-radius:6px;}
+.empty-row td{text-align:center;padding:40px;color:var(--muted);}
+
+/* Modal */
+.modal-bg{
+  position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);
+  z-index:500;display:none;align-items:center;justify-content:center;padding:20px;
+}
+.modal-bg.open{display:flex;animation:fadeIn .15s ease;}
+.modal-box{
+  background:var(--bg2);border:1px solid var(--border);border-radius:16px;
+  width:100%;max-width:520px;animation:slideUp .2s ease;
+}
+@keyframes slideUp{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
+.modal-head{
+  padding:20px 24px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.modal-head h3{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;letter-spacing:1px;}
+.modal-close-btn{
+  width:30px;height:30px;border-radius:6px;background:var(--bg3);border:1px solid var(--border);
+  color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:13px;transition:all .15s;
+}
+.modal-close-btn:hover{color:var(--text);}
+.modal-body{padding:24px;}
+.modal-foot{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;}
+.btn-cancel{
+  padding:9px 18px;background:transparent;border:1px solid var(--border);
+  border-radius:8px;color:var(--muted);font-size:13px;font-family:inherit;cursor:pointer;transition:all .15s;
+}
+.btn-cancel:hover{border-color:rgba(255,255,255,.2);color:var(--text);}
+.btn-save{
+  padding:9px 20px;background:var(--red);border:none;border-radius:8px;
+  color:#fff;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .15s;
+}
+.btn-save:hover{background:#c81a1a;}
+.fg{margin-bottom:16px;}
+.fg label{display:block;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:7px;}
+.fg input,.fg textarea,.fg select{
+  width:100%;padding:9px 12px;background:var(--bg3);border:1px solid var(--border);
+  border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;outline:none;
+  transition:border-color .2s;
+}
+.fg input:focus,.fg textarea:focus,.fg select:focus{border-color:var(--red);}
+.fg textarea{height:80px;resize:vertical;}
+.fg select option{background:var(--bg3);}
+.fg-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="icon"><i class="fas fa-shield-halved"></i></div>
+      <h1>GAMER<small>SHOP</small></h1>
+      <p>Admin Portal</p>
+    </div>
+    <div class="form-group">
+      <label>Username</label>
+      <input class="form-input" id="loginUser" type="text" placeholder="admin" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input class="form-input" id="loginPass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn-login" onclick="doLogin()"><i class="fas fa-right-to-bracket"></i> เข้าสู่ระบบ</button>
+    <p class="login-hint">Demo: username <code>admin</code> password <code>admin1234</code></p>
+  </div>
+</div>
+
+<!-- ADMIN APP -->
+<div id="adminApp">
+  <div class="admin-wrap">
+
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-logo">
+        <div class="icon"><i class="fas fa-gamepad"></i></div>
+        <span>GAMER<small>SHOP</small></span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">ภาพรวม</div>
+        <div class="nav-item active" onclick="showPage('dashboard',this)"><i class="fas fa-chart-line"></i> แดชบอร์ด</div>
+        <div class="nav-section-label">จัดการ</div>
+        <div class="nav-item" onclick="showPage('products',this)"><i class="fas fa-box"></i> สินค้า</div>
+        <div class="nav-item" onclick="showPage('orders',this)"><i class="fas fa-receipt"></i> ออเดอร์</div>
+        <div class="nav-item" onclick="showPage('users',this)"><i class="fas fa-users"></i> ผู้ใช้</div>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar">A</div>
+          <div>
+            <div class="user-name" id="sidebarUser">Admin</div>
+            <div class="user-role">Administrator</div>
+          </div>
+        </div>
+        <button class="btn-logout" onclick="doLogout()"><i class="fas fa-right-from-bracket"></i> ออกจากระบบ</button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="admin-main">
+      <div class="admin-topbar">
+        <span class="topbar-title" id="topbarTitle">แดชบอร์ด</span>
+        <div class="topbar-right">
+          <a href="index.html" target="_blank" class="store-link"><i class="fas fa-store"></i> ดูหน้าร้าน</a>
+        </div>
+      </div>
+
+      <div class="admin-content">
+
+        <!-- DASHBOARD -->
+        <div class="page active" id="page-dashboard">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon" style="background:rgba(224,32,32,.15);color:var(--red);"><i class="fas fa-box"></i></div>
+              <div class="stat-value" id="stat-products">0</div>
+              <div class="stat-label">สินค้าทั้งหมด</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" style="background:rgba(34,197,94,.15);color:var(--green);"><i class="fas fa-receipt"></i></div>
+              <div class="stat-value" id="stat-orders">0</div>
+              <div class="stat-label">ออเดอร์ทั้งหมด</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" style="background:rgba(59,130,246,.15);color:var(--blue);"><i class="fas fa-users"></i></div>
+              <div class="stat-value" id="stat-users">0</div>
+              <div class="stat-label">ผู้ใช้งาน</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" style="background:rgba(245,200,66,.15);color:var(--gold);"><i class="fas fa-baht-sign"></i></div>
+              <div class="stat-value" id="stat-revenue">0</div>
+              <div class="stat-label">ยอดขายรวม (THB)</div>
+            </div>
+          </div>
+          <div class="chart-row">
+            <div class="chart-card">
+              <div class="chart-title">ยอดขายรายเดือน</div>
+              <div class="bar-chart" id="barChart"></div>
+            </div>
+            <div class="chart-card">
+              <div class="chart-title">สินค้าขายดี</div>
+              <div class="top-products" id="topProducts"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PRODUCTS -->
+        <div class="page" id="page-products">
+          <div class="section-header">
+            <span class="section-title">จัดการสินค้า</span>
+            <button class="btn-add" onclick="openProductModal()"><i class="fas fa-plus"></i> เพิ่มสินค้า</button>
+          </div>
+          <div class="table-wrap">
+            <div class="search-row">
+              <input class="tbl-search" type="text" placeholder="ค้นหาสินค้า..." oninput="filterProducts(this.value)">
+              <select class="tbl-filter" onchange="filterProductType(this.value)">
+                <option value="all">ทุกหมวด</option>
+                <option value="game">Game</option>
+                <option value="Artbook">Artbook</option>
+                <option value="DLC">DLC</option>
+              </select>
+            </div>
+            <table>
+              <thead><tr><th>รูป</th><th>ชื่อสินค้า</th><th>ราคา</th><th>หมวด</th><th>จัดการ</th></tr></thead>
+              <tbody id="productTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ORDERS -->
+        <div class="page" id="page-orders">
+          <div class="section-header">
+            <span class="section-title">คำสั่งซื้อ</span>
+          </div>
+          <div class="table-wrap">
+            <div class="search-row">
+              <input class="tbl-search" type="text" placeholder="ค้นหาออเดอร์..." oninput="filterOrders(this.value)">
+              <select class="tbl-filter" onchange="filterOrderStatus(this.value)">
+                <option value="all">ทุกสถานะ</option>
+                <option value="pending">Pending</option>
+                <option value="done">Done</option>
+              </select>
+            </div>
+            <table>
+              <thead><tr><th>Order ID</th><th>ผู้สั่ง</th><th>สินค้า</th><th>ยอด</th><th>สถานะ</th><th>วันที่</th><th>จัดการ</th></tr></thead>
+              <tbody id="orderTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- USERS -->
+        <div class="page" id="page-users">
+          <div class="section-header">
+            <span class="section-title">จัดการผู้ใช้</span>
+            <button class="btn-add" onclick="openUserModal()"><i class="fas fa-plus"></i> เพิ่มผู้ใช้</button>
+          </div>
+          <div class="table-wrap">
+            <div class="search-row">
+              <input class="tbl-search" type="text" placeholder="ค้นหาผู้ใช้..." oninput="filterUsers(this.value)">
+            </div>
+            <table>
+              <thead><tr><th>ชื่อ</th><th>Username</th><th>บทบาท</th><th>วันที่สมัคร</th><th>จัดการ</th></tr></thead>
+              <tbody id="userTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div><!-- /admin-content -->
+    </div><!-- /admin-main -->
+  </div>
+</div>
+
+<!-- PRODUCT MODAL -->
+<div class="modal-bg" id="productModal" onclick="closeModalBg(event,'productModal')">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-head">
+      <h3 id="productModalTitle">เพิ่มสินค้า</h3>
+      <button class="modal-close-btn" onclick="closeModal('productModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editProductId">
+      <div class="fg"><label>ชื่อสินค้า</label><input id="pName" type="text" placeholder="ชื่อสินค้า"></div>
+      <div class="fg-row">
+        <div class="fg"><label>ราคา (THB)</label><input id="pPrice" type="number" placeholder="0"></div>
+        <div class="fg"><label>หมวดหมู่</label>
+          <select id="pType">
+            <option value="game">Game</option>
+            <option value="Artbook">Artbook</option>
+            <option value="DLC">DLC</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg"><label>URL รูปภาพ</label><input id="pImg" type="text" placeholder="https://..."></div>
+      <div class="fg"><label>คำอธิบาย</label><textarea id="pDesc" placeholder="รายละเอียดสินค้า..."></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeModal('productModal')">ยกเลิก</button>
+      <button class="btn-save" onclick="saveProduct()">บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- USER MODAL -->
+<div class="modal-bg" id="userModal" onclick="closeModalBg(event,'userModal')">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-head">
+      <h3 id="userModalTitle">เพิ่มผู้ใช้</h3>
+      <button class="modal-close-btn" onclick="closeModal('userModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editUserId">
+      <div class="fg-row">
+        <div class="fg"><label>ชื่อ</label><input id="uName" type="text" placeholder="ชื่อ-นามสกุล"></div>
+        <div class="fg"><label>Username</label><input id="uUsername" type="text" placeholder="username"></div>
+      </div>
+      <div class="fg-row">
+        <div class="fg"><label>Password</label><input id="uPass" type="password" placeholder="••••••••"></div>
+        <div class="fg"><label>บทบาท</label>
+          <select id="uRole">
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeModal('userModal')">ยกเลิก</button>
+      <button class="btn-save" onclick="saveUser()">บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ======= DATA (localStorage) =======
+const ADMINS = [{username:'admin',password:'admin1234',name:'Admin'}];
+const MONTHS = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+
+const defaultProducts = [
+  {id:1,img:'https://upload.wikimedia.org/wikipedia/commons/f/fb/Minecraft-creeper-face.jpg',name:'Minecraft',price:260,type:'game',description:'Minecraft เป็นเกมแห่งการสร้างสรรค์'},
+  {id:2,img:'https://i0.wp.com/www.pipeworks.com/wp-content/uploads/2022/09/Terraria.jpg?fit=800%2C800&ssl=1',name:'Terraria',price:150,type:'game',description:'เกมผจญภัยและสำรวจ'},
+  {id:3,img:'https://s.pacn.ws/1/p/pf/starbound-457843.10.jpg?v=rlqid2',name:'Starbound',price:170,type:'game',description:'เกมผจญภัยในอวกาศ'},
+  {id:4,img:'https://image.api.playstation.com/cdn/UP1004/CUSA03041_00/Hpl5MtwQgOVF9vJqlfui6SDB5Jl4oBSq.png',name:'Red Dead Redemption 2',price:1300,type:'game',description:'เกมแอ็กชันยุคคาวบอย'},
+  {id:5,img:'https://upload.wikimedia.org/wikipedia/th/c/cc/Grand_Theft_Auto_V_Cover.png',name:'Grand Theft Auto V',price:1200,type:'game',description:'โอเพ่นเวิลด์แอคชั่น'},
+  {id:6,img:'https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcTuElM9ybFsWjM0EG0PRPN81jjZ20DOrPzeWOedkh6CIDiWzqan',name:'ELDEN RING Art Book Vol.I',price:900,type:'Artbook',description:'หนังสือศิลปะ Elden Ring'},
+  {id:7,img:'https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcTNHL2ZZZchWjdq431GKAU08VCvhrr11-KbIICkxqLCRUeL-lIT',name:'The Art of Cuphead',price:900,type:'Artbook',description:'หนังสือศิลปะ Cuphead'},
+  {id:8,img:'https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcTlGMttfwkXFHBxJAnmGSVOf_nJQdS21zMbk-iC0xDMiHn9zRPk',name:'The Art of Final Fantasy XVI',price:900,type:'Artbook',description:'หนังสือศิลปะ FFXVI'},
+  {id:9,img:'https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcSAb7rFg5jPTxkzz42Jd1Zobhr73Q8xZxNSwbHsreVYZ1-N-VOw',name:'The Art of DOOM: Eternal',price:900,type:'Artbook',description:'หนังสือศิลปะ DOOM'},
+  {id:10,img:'https://image.api.playstation.com/vulcan/img/cfn/11307RW7B5mvRMeOG-1pM9RnGdpRQVQ2iXinFe9755wHVXH0-mRqwizRWZQK8wMHat3XhtITgBGvRuT7JLJkkZenNxUerkoj.png',name:'Monster Hunter World: Iceborne',price:490,type:'DLC',description:'DLC ภูมิภาคน้ำแข็ง'},
+  {id:11,img:'https://howlongtobeat.com/games/139385_Elden_Ring_Shadow_of_the_Erdtree.jpg',name:'ELDEN RING: Shadow of the Erdtree',price:490,type:'DLC',description:'DLC Elden Ring'},
+  {id:12,img:'https://upload.wikimedia.org/wikipedia/en/e/ed/The_Last_of_Us_Left_Behind_cover.jpg',name:'The Last Of Us: Left Behind',price:490,type:'DLC',description:'DLC The Last of Us'},
+  {id:13,img:'https://m.media-amazon.com/images/M/MV5BMGM2ZWVlY2EtZTViNy00OTRlLThkZjAtMTVjNzQ3YTRkYjU4XkEyXkFqcGc@._V1_.jpg',name:'BioShock Infinite: Burial at Sea',price:490,type:'DLC',description:'DLC BioShock Infinite'},
+];
+
+const defaultOrders = [
+  {id:'ORD-001',user:'สมชาย ใจดี',items:'Minecraft x1',total:260,status:'done',date:'2025-04-01'},
+  {id:'ORD-002',user:'สุดา รักเรียน',items:'Red Dead Redemption 2 x1',total:1300,status:'done',date:'2025-04-03'},
+  {id:'ORD-003',user:'ธนา พลอย',items:'GTA V x1, Terraria x2',total:1500,status:'pending',date:'2025-04-06'},
+  {id:'ORD-004',user:'มานี มีสุข',items:'ELDEN RING Art Book x1',total:900,status:'done',date:'2025-04-08'},
+  {id:'ORD-005',user:'วิภา สวัสดิ์',items:'MHW Iceborne x1',total:490,status:'pending',date:'2025-04-10'},
+];
+
+const defaultUsers = [
+  {id:1,name:'Admin User',username:'admin',role:'admin',joined:'2025-01-01'},
+  {id:2,name:'สมชาย ใจดี',username:'somchai',role:'user',joined:'2025-03-15'},
+  {id:3,name:'สุดา รักเรียน',username:'suda99',role:'user',joined:'2025-04-01'},
+];
+
+function getLS(key,def){try{const d=localStorage.getItem(key);return d?JSON.parse(d):def;}catch{return def;}}
+function setLS(key,val){localStorage.setItem(key,JSON.stringify(val));}
+
+let products=[],orders=[],users=[];
+function loadData(){
+  products=getLS('gs_products',defaultProducts);
+  orders=getLS('gs_orders',defaultOrders);
+  users=getLS('gs_users',defaultUsers);
+}
+function saveProducts(){setLS('gs_products',products);}
+function saveOrders(){setLS('gs_orders',orders);}
+function saveUsers(){setLS('gs_users',users);}
+
+// ======= AUTH =======
+function doLogin(){
+  const u=document.getElementById('loginUser').value.trim();
+  const p=document.getElementById('loginPass').value;
+  const found=ADMINS.find(a=>a.username===u&&a.password===p);
+  if(!found){
+    Swal.fire({title:'เข้าสู่ระบบไม่สำเร็จ',text:'Username หรือ Password ไม่ถูกต้อง',icon:'error',background:'#17171f',color:'#e8e8f0',confirmButtonColor:'#e02020'});
+    return;
+  }
+  sessionStorage.setItem('gs_admin',JSON.stringify(found));
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('adminApp').style.display='block';
+  document.getElementById('sidebarUser').textContent=found.name;
+  loadData();
+  renderDashboard();
+  renderProductTable();
+  renderOrderTable();
+  renderUserTable();
+}
+function doLogout(){
+  Swal.fire({
+    title:'ออกจากระบบ?',icon:'question',showCancelButton:true,
+    confirmButtonText:'ออก',cancelButtonText:'ยกเลิก',
+    background:'#17171f',color:'#e8e8f0',confirmButtonColor:'#e02020'
+  }).then(r=>{
+    if(r.isConfirmed){
+      sessionStorage.removeItem('gs_admin');
+      document.getElementById('adminApp').style.display='none';
+      document.getElementById('loginScreen').style.display='flex';
+      document.getElementById('loginUser').value='';
+      document.getElementById('loginPass').value='';
+    }
+  });
+}
+
+// ======= NAV =======
+function showPage(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  el.classList.add('active');
+  const titles={dashboard:'แดชบอร์ด',products:'จัดการสินค้า',orders:'คำสั่งซื้อ',users:'จัดการผู้ใช้'};
+  document.getElementById('topbarTitle').textContent=titles[id]||id;
+  if(id==='dashboard')renderDashboard();
+}
+
+// ======= DASHBOARD =======
+function renderDashboard(){
+  document.getElementById('stat-products').textContent=products.length;
+  document.getElementById('stat-orders').textContent=orders.length;
+  document.getElementById('stat-users').textContent=users.length;
+  const rev=orders.filter(o=>o.status==='done').reduce((s,o)=>s+o.total,0);
+  document.getElementById('stat-revenue').textContent=rev.toLocaleString();
+
+  // Bar chart (dummy monthly)
+  const vals=[4200,6500,3800,9200,7400,11000,8300,13500,10200,15800,9600,18400];
+  const max=Math.max(...vals);
+  const bc=document.getElementById('barChart');
+  bc.innerHTML=vals.map((v,i)=>`
+    <div class="bar-wrap">
+      <div class="bar" style="height:${Math.round((v/max)*120)}px;">
+        <span class="bar-val">${(v/1000).toFixed(1)}k</span>
+      </div>
+      <span class="bar-label">${MONTHS[i]}</span>
+    </div>`).join('');
+
+  // Top products
+  const top=[
+    {name:'Red Dead Redemption 2',sales:24},
+    {name:'GTA V',sales:19},
+    {name:'Minecraft',sales:15},
+    {name:'ELDEN RING Art Book',sales:11},
+    {name:'MHW: Iceborne',sales:8},
+  ];
+  document.getElementById('topProducts').innerHTML=top.map((t,i)=>`
+    <div class="top-item">
+      <div class="top-rank ${i===0?'gold':''}">${i+1}</div>
+      <span class="top-name">${t.name}</span>
+      <span class="top-sales">${t.sales} ชิ้น</span>
+    </div>`).join('');
+}
+
+// ======= PRODUCTS =======
+let prodSearch='',prodTypeFilter='all';
+function renderProductTable(){
+  const list=products.filter(p=>{
+    const mq=p.name.toLowerCase().includes(prodSearch.toLowerCase());
+    const mt=prodTypeFilter==='all'||p.type===prodTypeFilter;
+    return mq&&mt;
+  });
+  const typeBadge={game:'badge-game',Artbook:'badge-art',DLC:'badge-dlc'};
+  const typeLabel={game:'Game',Artbook:'Artbook',DLC:'DLC'};
+  const tbody=document.getElementById('productTable');
+  if(!list.length){tbody.innerHTML=`<tr class="empty-row"><td colspan="5"><i class="fas fa-box-open" style="margin-right:8px;"></i>ไม่พบสินค้า</td></tr>`;return;}
+  tbody.innerHTML=list.map(p=>`
+    <tr>
+      <td><img class="prod-img-thumb" src="${p.img}" onerror="this.src='https://placehold.co/40x40/111/444?text=?'"></td>
+      <td>${p.name}</td>
+      <td>${p.price.toLocaleString()} THB</td>
+      <td><span class="badge ${typeBadge[p.type]||''}">${typeLabel[p.type]||p.type}</span></td>
+      <td>
+        <div class="action-btns">
+          <button class="btn-icon edit" onclick="openProductModal(${p.id})" title="แก้ไข"><i class="fas fa-pen"></i></button>
+          <button class="btn-icon del" onclick="deleteProduct(${p.id})" title="ลบ"><i class="fas fa-trash"></i></button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+function filterProducts(v){prodSearch=v;renderProductTable();}
+function filterProductType(v){prodTypeFilter=v;renderProductTable();}
+
+function openProductModal(id){
+  document.getElementById('editProductId').value=id||'';
+  if(id){
+    const p=products.find(x=>x.id===id);
+    if(!p)return;
+    document.getElementById('productModalTitle').textContent='แก้ไขสินค้า';
+    document.getElementById('pName').value=p.name;
+    document.getElementById('pPrice').value=p.price;
+    document.getElementById('pType').value=p.type;
+    document.getElementById('pImg').value=p.img;
+    document.getElementById('pDesc').value=p.description;
+  } else {
+    document.getElementById('productModalTitle').textContent='เพิ่มสินค้า';
+    ['pName','pPrice','pImg','pDesc'].forEach(i=>document.getElementById(i).value='');
+    document.getElementById('pType').value='game';
+  }
+  document.getElementById('productModal').classList.add('open');
+}
+function saveProduct(){
+  const id=document.getElementById('editProductId').value;
+  const name=document.getElementById('pName').value.trim();
+  const price=parseFloat(document.getElementById('pPrice').value);
+  const type=document.getElementById('pType').value;
+  const img=document.getElementById('pImg').value.trim();
+  const description=document.getElementById('pDesc').value.trim();
+  if(!name||!price){Swal.fire({title:'กรุณากรอกข้อมูล',icon:'warning',background:'#17171f',color:'#e8e8f0'});return;}
+  if(id){
+    const idx=products.findIndex(p=>p.id==id);
+    if(idx>-1)products[idx]={...products[idx],name,price,type,img,description};
+  } else {
+    const newId=products.length?Math.max(...products.map(p=>p.id))+1:1;
+    products.push({id:newId,name,price,type,img,description});
+  }
+  saveProducts();
+  closeModal('productModal');
+  renderProductTable();
+  toast('บันทึกสำเร็จ!');
+}
+function deleteProduct(id){
+  Swal.fire({
+    title:'ลบสินค้า?',text:'ไม่สามารถย้อนกลับได้',icon:'warning',
+    showCancelButton:true,confirmButtonText:'ลบ',cancelButtonText:'ยกเลิก',
+    background:'#17171f',color:'#e8e8f0',confirmButtonColor:'#e02020'
+  }).then(r=>{
+    if(r.isConfirmed){
+      products=products.filter(p=>p.id!==id);
+      saveProducts();
+      renderProductTable();
+      toast('ลบสินค้าแล้ว');
+    }
+  });
+}
+
+// ======= ORDERS =======
+let ordSearch='',ordStatus='all';
+function renderOrderTable(){
+  const list=orders.filter(o=>{
+    const mq=o.id.toLowerCase().includes(ordSearch.toLowerCase())||o.user.toLowerCase().includes(ordSearch.toLowerCase());
+    const ms=ordStatus==='all'||o.status===ordStatus;
+    return mq&&ms;
+  });
+  const tbody=document.getElementById('orderTable');
+  if(!list.length){tbody.innerHTML=`<tr class="empty-row"><td colspan="7"><i class="fas fa-receipt" style="margin-right:8px;"></i>ไม่พบออเดอร์</td></tr>`;return;}
+  tbody.innerHTML=list.map(o=>`
+    <tr>
+      <td><strong>${o.id}</strong></td>
+      <td>${o.user}</td>
+      <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${o.items}</td>
+      <td>${o.total.toLocaleString()} THB</td>
+      <td><span class="badge ${o.status==='done'?'badge-done':'badge-pending'}">${o.status==='done'?'Done':'Pending'}</span></td>
+      <td>${o.date}</td>
+      <td>
+        <div class="action-btns">
+          ${o.status==='pending'?`<button class="btn-icon edit" onclick="markOrderDone('${o.id}')" title="มาร์กว่าสำเร็จ"><i class="fas fa-check"></i></button>`:''}
+        </div>
+      </td>
+    </tr>`).join('');
+}
+function filterOrders(v){ordSearch=v;renderOrderTable();}
+function filterOrderStatus(v){ordStatus=v;renderOrderTable();}
+function markOrderDone(id){
+  const o=orders.find(x=>x.id===id);
+  if(o)o.status='done';
+  saveOrders();
+  renderOrderTable();
+  toast('อัปเดตสถานะแล้ว');
+}
+
+// ======= USERS =======
+let userSearch='';
+function renderUserTable(){
+  const list=users.filter(u=>u.name.toLowerCase().includes(userSearch.toLowerCase())||u.username.toLowerCase().includes(userSearch.toLowerCase()));
+  const tbody=document.getElementById('userTable');
+  if(!list.length){tbody.innerHTML=`<tr class="empty-row"><td colspan="5"><i class="fas fa-users" style="margin-right:8px;"></i>ไม่พบผู้ใช้</td></tr>`;return;}
+  tbody.innerHTML=list.map(u=>`
+    <tr>
+      <td>${u.name}</td>
+      <td>${u.username}</td>
+      <td><span class="badge ${u.role==='admin'?'badge-admin':'badge-user'}">${u.role}</span></td>
+      <td>${u.joined}</td>
+      <td>
+        <div class="action-btns">
+          <button class="btn-icon edit" onclick="openUserModal(${u.id})" title="แก้ไข"><i class="fas fa-pen"></i></button>
+          <button class="btn-icon del" onclick="deleteUser(${u.id})" title="ลบ"><i class="fas fa-trash"></i></button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+function filterUsers(v){userSearch=v;renderUserTable();}
+
+function openUserModal(id){
+  document.getElementById('editUserId').value=id||'';
+  if(id){
+    const u=users.find(x=>x.id===id);
+    if(!u)return;
+    document.getElementById('userModalTitle').textContent='แก้ไขผู้ใช้';
+    document.getElementById('uName').value=u.name;
+    document.getElementById('uUsername').value=u.username;
+    document.getElementById('uPass').value='';
+    document.getElementById('uRole').value=u.role;
+  } else {
+    document.getElementById('userModalTitle').textContent='เพิ่มผู้ใช้';
+    ['uName','uUsername','uPass'].forEach(i=>document.getElementById(i).value='');
+    document.getElementById('uRole').value='user';
+  }
+  document.getElementById('userModal').classList.add('open');
+}
+function saveUser(){
+  const id=document.getElementById('editUserId').value;
+  const name=document.getElementById('uName').value.trim();
+  const username=document.getElementById('uUsername').value.trim();
+  const role=document.getElementById('uRole').value;
+  if(!name||!username){Swal.fire({title:'กรุณากรอกข้อมูล',icon:'warning',background:'#17171f',color:'#e8e8f0'});return;}
+  if(id){
+    const idx=users.findIndex(u=>u.id==id);
+    if(idx>-1)users[idx]={...users[idx],name,username,role};
+  } else {
+    const newId=users.length?Math.max(...users.map(u=>u.id))+1:1;
+    users.push({id:newId,name,username,role,joined:new Date().toISOString().split('T')[0]});
+  }
+  saveUsers();
+  closeModal('userModal');
+  renderUserTable();
+  toast('บันทึกสำเร็จ!');
+}
+function deleteUser(id){
+  Swal.fire({
+    title:'ลบผู้ใช้?',icon:'warning',showCancelButton:true,
+    confirmButtonText:'ลบ',cancelButtonText:'ยกเลิก',
+    background:'#17171f',color:'#e8e8f0',confirmButtonColor:'#e02020'
+  }).then(r=>{
+    if(r.isConfirmed){
+      users=users.filter(u=>u.id!==id);
+      saveUsers();
+      renderUserTable();
+      toast('ลบผู้ใช้แล้ว');
+    }
+  });
+}
+
+// ======= UTIL =======
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function closeModalBg(e,id){if(e.target.id===id)closeModal(id);}
+function toast(msg){
+  Swal.fire({title:msg,timer:1200,showConfirmButton:false,icon:'success',
+    background:'#17171f',color:'#e8e8f0',toast:true,position:'bottom-end'});
+}
+
+// Auto-login if session exists
+(function(){
+  const s=sessionStorage.getItem('gs_admin');
+  if(s){
+    const found=JSON.parse(s);
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('adminApp').style.display='block';
+    document.getElementById('sidebarUser').textContent=found.name;
+    loadData();
+    renderDashboard();
+    renderProductTable();
+    renderOrderTable();
+    renderUserTable();
+  }
+})();
+</script>
+</body>
+</html>
